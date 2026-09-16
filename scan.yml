@@ -1,0 +1,26 @@
+name: 黄金信号自动扫描推送
+
+# 每10分钟运行一次（北京时间8:00-23:00，交易时段，每月约1980次在免费额度内）
+# GitHub Actions使用UTC时间，北京时间=UTC+8，所以UTC 0:00-15:00 = 北京时间8:00-23:00
+on:
+  schedule:
+    - cron: '*/10 0-14 * * 1-5'  # 周一到周五，UTC 0:00-14:50（北京时间8:00-22:50），每10分钟
+  workflow_dispatch:  # 允许手动触发
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v4
+      
+      - name: 设置Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      
+      - name: 运行信号扫描脚本
+        env:
+          SERVERCHAN_KEY: ${{ secrets.SERVERCHAN_KEY }}
+        run: python gold_signal_scan.py
